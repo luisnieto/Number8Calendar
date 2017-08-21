@@ -11,8 +11,11 @@ $(function() {
 
       // Clear calendar
       $('#calendar').html('');
+      holidays.length = 0;
 
       // Get the holidays
+      var lastDate = addDates(date, days);
+      getHolidays(date, lastDate, country);
 
       // Render the dates
       for (var i = 0; i < days; i++) {
@@ -21,7 +24,6 @@ $(function() {
       }
 
       // Complete the calendar if the last date isn't final day of the month
-      var lastDate = addDates(date, days);
       if (!isLastDayMonth(lastDate)) {
         var month = lastDate.getMonth() + 1;
         var year = lastDate.getYear() + 1900;
@@ -32,8 +34,39 @@ $(function() {
     });
 });
 
+var urlHolidaysService = 'https://holidayapi.com/v1/holidays';
+var holidaysKeyService = '4654c2db-6f5f-431d-a1fe-61e0fee73de0';
+
+var holidays = [];
 var weekDaysNames = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 var monthsNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+
+function getHolidays(initialDate, finalDate, country) {
+  var startYear = initialDate.getYear() + 1900;
+  var lastYear = finalDate.getYear() + 1900;
+
+  for (var i = startYear; i <= lastYear; i++) {
+    $.ajax({
+        url: urlHolidaysService, 
+        type: 'GET',
+        data: { 
+          key: holidaysKeyService, 
+          country: country, 
+          year: i 
+        },
+        async: false
+      }).done(function(data) {
+      if (data.status == 200) {
+        for (var property in data.holidays) {
+          if (data.holidays.hasOwnProperty(property)) {
+            var key = property.replace(/-/g, '');
+            holidays[key] = data.holidays[property];
+          }
+        }
+      }
+    });
+  }
+}
 
 function createMonth(month, year, startingDate) {
   var id = year + '-' + month;
@@ -78,6 +111,10 @@ function renderDay(date) {
     type = 'weekend';
   }
 
+  if(isHoliday(date)) {
+    type = 'holiday';
+  }
+
   $(id).append($('<span>').addClass(type).text(date.getDate()));
 
   if (isLastDayMonth(date)) {
@@ -88,6 +125,16 @@ function renderDay(date) {
 function isLastDayMonth(date) {
   var nextDay = addDates(date, 1);
   return nextDay.getMonth() != date.getMonth();
+}
+
+function isHoliday(date) {
+  var pad = '00';
+  var day = '' + (date.getDate());
+  var month = '' +(date.getMonth() + 1);
+  var year = date.getYear() + 1900;
+  var lookFor = year + pad.substring(0, pad.length - month.length) + month + pad.substring(0, pad.length - day.length) + day;
+
+  return holidays[lookFor] != undefined;
 }
 
 function stringToDate(str){
