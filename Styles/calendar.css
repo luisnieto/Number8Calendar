@@ -1,0 +1,43 @@
+#calendar .month {
+	width: 210px;
+	display: inline-block;
+	margin: 10px;
+	vertical-align: top;
+	text-align: left;
+}
+
+#calendar .month span {
+	width: 30px;
+	height: 30px;
+	display: inline-block;
+	vertical-align: top;
+	text-align: center;
+	padding: 5px 0;
+}
+
+#calendar .month span.day {
+	background-color: #003366;
+	color: white;
+}
+
+#calendar .month span.title {
+	width: 100%;
+	background-color: #660033;
+	color: white;
+}
+
+#calendar .month span.invalid {
+	background-color: grey;
+}
+
+#calendar .month span.week {
+	background-color: #70934C;
+}
+
+#calendar .month span.weekend {
+	background-color: #FFFF7F;
+}
+
+#calendar .month span.holiday {
+	background-color: #FFB732;
+}
