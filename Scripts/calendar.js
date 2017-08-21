@@ -19,6 +19,16 @@ $(function() {
         var renderDate = addDates(date, i);
         renderDay(renderDate);
       }
+
+      // Complete the calendar if the last date isn't final day of the month
+      var lastDate = addDates(date, days);
+      if (!isLastDayMonth(lastDate)) {
+        var month = lastDate.getMonth() + 1;
+        var year = lastDate.getYear() + 1900;
+        var day = lastDate.getDay() - 1;
+
+        completeMonth(month, year, day);
+      }
     });
 });
 
@@ -44,6 +54,14 @@ function createMonth(month, year, startingDate) {
   $('#calendar').append(element);
 }
 
+function completeMonth(month, year, lastDay) {
+  var id = '#' + year + '-' + month;
+
+  for (var i = lastDay + 1; i < 7; i++) {
+    $(id).append($('<span>').addClass('invalid'));
+  }
+}
+
 function renderDay(date) {
   var month = date.getMonth() + 1;
   var year = date.getYear() + 1900;
@@ -61,6 +79,15 @@ function renderDay(date) {
   }
 
   $(id).append($('<span>').addClass(type).text(date.getDate()));
+
+  if (isLastDayMonth(date)) {
+    completeMonth(month, year, day);
+  }
+}
+
+function isLastDayMonth(date) {
+  var nextDay = addDates(date, 1);
+  return nextDay.getMonth() != date.getMonth();
 }
 
 function stringToDate(str){
